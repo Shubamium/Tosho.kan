@@ -6,6 +6,9 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 
 import Home from './page/Home.jsx'
 import Search from './page/Search.jsx'
+import Bookshelf from './page/Bookshelf.jsx'
+import { Provider } from 'react-redux'
+import store from './toolkit/store/store.js'
 const routes = createBrowserRouter([
   {
     element:<App/>,
@@ -17,12 +20,18 @@ const routes = createBrowserRouter([
       {
         path:'/search',
         element:<Search/>
+      },
+      {
+        path:'/shelf',
+        element:<Bookshelf/>
       }
     ]
   }
 ])
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={routes}></RouterProvider>
+    <Provider store={store}>
+      <RouterProvider router={routes}></RouterProvider>
+    </Provider>
   </React.StrictMode>
 )

@@ -1,5 +1,8 @@
+import { useDispatch } from "react-redux"
+import { shelfActions } from "../toolkit/slice/shelfSlice";
 
 function Home() {
+
   return (
     <main className=" bg-blue-400 p-5">
         <div className="confine max-w-screen-lg text-white">
