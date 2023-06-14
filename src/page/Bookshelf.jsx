@@ -8,11 +8,13 @@ function Bookshelf() {
     <div>
         <div className="confine max-w-screen-lg">
            <h2>My Bookshelf</h2>
-           {bookShelf && bookShelf.map((bookData)=>{
-                return (
-                    <BookView key={bookData.id} bookData={bookData.bookData}/>
-                )
-           })}
+            <div className="flex flex-col gap-5">
+                {bookShelf && bookShelf.map((bookData)=>{
+                    return (
+                        <BookView key={bookData.id} bookData={bookData.bookData}/>
+                    )
+            })}
+            </div>
         </div>
     </div>
   )

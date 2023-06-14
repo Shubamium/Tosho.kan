@@ -39,7 +39,12 @@ function Search() {
                 authors:book.volumeInfo.authors,
                 thumbnail:book.volumeInfo?.imageLinks?.thumbnail,
                 description:book.volumeInfo?.description,
-                identifier:book.volumeInfo.industryIdentifiers
+                identifier:book.volumeInfo.industryIdentifiers,
+                actionLink:{
+                    buy:book.saleInfo.buyLink,
+                    preview:book.volumeInfo.previewLink,
+                    info:book.volumeInfo.infoLink
+                }
             }
         })
         return toReturn;
@@ -47,13 +52,14 @@ function Search() {
     return (
         <main>
             <div className="confine">
-                    <p>Searching for '{query.get('q')}' </p>
+                    <p className="text-xl p-2 mb-5">Showing search results for <span className="font-bold">'{query.get('q')}'</span>. . . </p>
+                    <p className="text-xl p-2">{searchRes && `${searchRes.length} Results found `}</p>
                     <div className="search-res flex flex-col gap-4">
-                    {searchRes && searchRes.map((res)=>{
-                        return (
-                            <BookView key={res.id} bookData={res}/>
-                        )
-                    })}
+                        {searchRes && searchRes.map((res)=>{
+                            return (
+                                <BookView key={res.id} bookData={res}/>
+                            )
+                        })}
                     </div>
             </div>
         </main>
@@ -73,7 +79,7 @@ export function BookView({bookData}){
                }
             </div>
             <div className="data col-span-8">
-                <p className="opacity-50"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[1]?.identifier) || bookData.id}</p>
+                <p className="opacity-50"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[0].identifier) || bookData.id}</p>
                 <h2 className="text-2xl font-semibold">{bookData.title}</h2>
                 <p>Published on {bookData.publishedDate}</p>
                 <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{bookData.description || 'No description is available for this book.'}</p>
@@ -81,8 +87,15 @@ export function BookView({bookData}){
                 <p>by {bookData.authors && bookData.authors.map((author,index)=> <span className="font-bold text-slate-500"> {index > 0 && ','}  {author} </span>)}</p>
                 <div className="action flex gap-3">
                     <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><PlusCircleIcon size={27}/> Add To Read</button>
-                    <button className="btn my-2 bg-sky-500 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><ShoppingCartIcon size={27}/> Buy</button>
-                    <button className="btn my-2 bg-teal-500 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><View size={27}/> More Info</button>
+                    {bookData.actionLink.buy && <a href={bookData.actionLink.buy || ''} target="_blank">
+                        <button className="btn my-2 bg-sky-500 shadow-md" ><ShoppingCartIcon size={27}/> Buy</button>
+                    </a>}
+                    {bookData.actionLink.info && <a href={bookData.actionLink.info || ''} target="_blank">
+                        <button className="btn my-2 bg-teal-500 shadow-md" ><View size={27}/> More Info</button>
+                    </a>}
+                    {bookData.actionLink.preview && <a href={bookData.actionLink.preview || ''} target="_blank">
+                        <button className="btn my-2 bg-slate-500 shadow-md" ><View size={27}/> Preview</button>
+                    </a>}
                 </div>
             </div>
         </div>
