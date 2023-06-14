@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .btn{
+        @apply 
+        bg-blue-600 text-white py-2 px-5 rounded-md text-lg hover:scale-105 
+        active:scale-95 whitespace-nowrap flex gap-2 content-center transition-all duration-200
+        hover:bg-blue-500;
+    }
+
+    .confine{
+        @apply
+        max-w-screen-xl m-auto;
+    }
+}
+
+
+.potrait{
+    aspect-ratio: 4/3;
+    height: 230px;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
