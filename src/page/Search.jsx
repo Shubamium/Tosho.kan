@@ -51,29 +51,7 @@ function Search() {
                     <div className="search-res flex flex-col gap-4">
                     {searchRes && searchRes.map((res)=>{
                         return (
-                            <div key={res.id} className="search-result_book border-sky-00 border-2 bg-sky-50 pr-6 py-6
-                            grid grid-cols-10 rounded-md shadow-sm">  
-                                <div className="img-part col-span-2 px-10 ">
-                                   { res.thumbnail ? <img src={res.thumbnail} alt="" className="w-full p-2 max-h-1/2 drop-shadow-md"  />:
-                                     <div className="w-full h-full bg-sky-200 flex flex-col justify-center content-center potrait">
-                                         <p className="text-sky-800 text-center">No Preview Available</p>
-                                     </div>
-                                   }
-                                </div>
-                                <div className="data col-span-8">
-                                    <p className="opacity-50">ISBN - {res.identifier[1]?.identifier || res.id}</p>
-                                    <h2 className="text-2xl font-semibold">{res.title}</h2>
-                                    <p>Published on {res.publishedDate}</p>
-                                    <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{res.description || 'No description is available for this book.'}</p>
-                                    <p>{res.pageCount} Pages </p>
-                                    <p>by {res.authors && res.authors.map((author,index)=> <span className="font-bold text-slate-500"> {index > 0 && ','}  {author} </span>)}</p>
-                                    <div className="action flex gap-3">
-                                        <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:res.id,pageRead:0,pageCount:res.pageCount,bookData:res}))}}><PlusCircleIcon size={27}/> Add To Read</button>
-                                        <button className="btn my-2 bg-sky-500 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:res.id,pageRead:0,pageCount:res.pageCount,bookData:res}))}}><ShoppingCartIcon size={27}/> Buy</button>
-                                        <button className="btn my-2 bg-teal-500 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:res.id,pageRead:0,pageCount:res.pageCount,bookData:res}))}}><View size={27}/> More Info</button>
-                                    </div>
-                                </div>
-                            </div>
+                            <BookView key={res.id} bookData={res}/>
                         )
                     })}
                     </div>
@@ -82,4 +60,32 @@ function Search() {
   )
 }
 
+export function BookView({bookData}){
+    const dispatch = useDispatch();
+    return (
+        <div  className="search-result_book border-sky-00 border-2 bg-sky-50 pr-6 py-6
+        grid grid-cols-10 rounded-md shadow-sm">  
+            <div className="img-part col-span-2 px-10 ">
+               { bookData.thumbnail ? <img src={bookData.thumbnail} alt="" className="w-full p-2 max-h-1/2 drop-shadow-md"  />:
+                 <div className="w-full h-full bg-sky-200 flex flex-col justify-center content-center potrait">
+                     <p className="text-sky-800 text-center">No Preview Available</p>
+                 </div>
+               }
+            </div>
+            <div className="data col-span-8">
+                <p className="opacity-50"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[1]?.identifier) || bookData.id}</p>
+                <h2 className="text-2xl font-semibold">{bookData.title}</h2>
+                <p>Published on {bookData.publishedDate}</p>
+                <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{bookData.description || 'No description is available for this book.'}</p>
+                <p>{bookData.pageCount} Pages </p>
+                <p>by {bookData.authors && bookData.authors.map((author,index)=> <span className="font-bold text-slate-500"> {index > 0 && ','}  {author} </span>)}</p>
+                <div className="action flex gap-3">
+                    <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><PlusCircleIcon size={27}/> Add To Read</button>
+                    <button className="btn my-2 bg-sky-500 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><ShoppingCartIcon size={27}/> Buy</button>
+                    <button className="btn my-2 bg-teal-500 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><View size={27}/> More Info</button>
+                </div>
+            </div>
+        </div>
+    )
+}
 export default Search
