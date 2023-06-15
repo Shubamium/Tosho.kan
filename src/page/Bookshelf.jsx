@@ -4,8 +4,16 @@ import { useState } from "react";
 
 function Bookshelf() {
 
-    const bookShelf = useSelector((state)=>state.shelf);
+    const bookShelf = useSelector((state)=>state.shelf.shelf);
     const [showingCategory,setShowingCategory] = useState('favorite');
+
+    const toRender = [...bookShelf].reverse().map((bookData) => {
+      if (bookData.category !== showingCategory) return null;
+      return (
+        <BookView key={bookData.id} types={'shelf'} bookData={bookData.bookData} />
+      );
+    });
+
     return (
       <div>
           <div className="confine max-w-screen-lg">
@@ -27,12 +35,12 @@ function Bookshelf() {
                       
             </div>
               <div className="flex flex-col gap-5">
-                  {bookShelf && [...bookShelf].reverse().map((bookData)=>{
-                      if(bookData.category !== showingCategory) return <></>;
-                      return (
-                          <BookView key={bookData.id} types={'shelf'} bookData={bookData.bookData}/>
-                      )
-                  })}
+                  {bookShelf && toRender}
+                  {toRender.filter((el) => el !== null && el !== undefined).length == 0 || !bookShelf ?  (
+                    <>
+                      <h2>No books is available yet. Search the books you want and add it, it will show up here!</h2>
+                    </>
+                  ) : <></>}
               </div>
           </div>
       </div>

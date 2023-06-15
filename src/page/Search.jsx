@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useFormAction, useLocation, useSearchParams } from "react-router-dom"
 import { shelfActions } from "../toolkit/slice/shelfSlice";
 import { ArrowBigDown, ArrowBigRightDash, BookMarked, Cross, CrossIcon, CrosshairIcon, Edit, LucideCross, PlusCircleIcon, ShoppingCartIcon, View, X } from "lucide-react";
@@ -20,10 +20,13 @@ function Search() {
 
    const dispatch = useDispatch();
    const [searchRes,setSearchRes] = useState();
+   const [loading,setLoading] = useState(false);
     useEffect(()=>{
+        setLoading(true);
         const q = query.get('q');
         book_search(q,(res)=>{
             setSearchRes(parseResult(res));
+            setLoading(false);
         })
     },[query]);
 
@@ -57,19 +60,53 @@ function Search() {
                         <p className="text-xl p-2 opacity-50 text-right">{searchRes && `${searchRes.length} Results found `}</p>
                     </div>
                     <div className="search-res flex flex-col gap-4">
-                        {searchRes && searchRes.map((res)=>{
+                        {!loading && searchRes && searchRes.map((res)=>{
                             return (
                                 <BookView key={res.id} bookData={res}/>
                             )
                         })}
+                        {loading && (
+                            <>
+                                <BookviewSkeleton/>
+                                <BookviewSkeleton/>
+                                <BookviewSkeleton/>
+                            </>
+                        )}
                     </div>
             </div>
         </main>
   )
 }
 
+export function BookviewSkeleton(){
+    return (
+        <div className="skeleton animate-pulse">
+                                   <div  className="search-result_book border-sky-00 border-2 bg-sky-50 pr-6 py-6
+                                                     grid grid-cols-10 rounded-md shadow-sm">  
+                                        <div className="img-part col-span-2 px-10 ">
+                                            <div className="w-full h-full bg-slate-200 flex flex-col justify-center content-center potrait">
+                                            </div>
+                                        </div>
+                                        <div className="data col-span-8">
+                                            <p className="opacity-50 bg-slate-300 text-transparent w-fit
+                                            my-2 rounded-none"> aaaaaaaaaaaaa</p>
+                                            <h2 className="text-2xl font-semibold w-fit text-transparent rounded-md bg-slate-300">bookData.title</h2>
+                                            <p className="text-transparent bg-slate-300 w-fit my-2">Published on 2099</p>
+                                            <p className="text-sm mb-5 p-2 bg-slate-200 min-h-[150px] text-transparent">'No description is available for this book.'</p>
+                                           <div className="flex gap.2">
+                                                <button className="btn my-2 shadow-md bg-slate-400 text-transparent" disabled > Add To Read</button>
+                                                <button className="btn my-2 shadow-md bg-slate-400 text-transparent" disabled > Add To Read</button>
+                                                <button className="btn my-2 shadow-md bg-slate-400 text-transparent" disabled > Add To Read</button>
+                                                <button className="btn my-2 shadow-md bg-slate-400 text-transparent" disabled > Add To Read</button>
+                                           </div>
+                                        </div>
+                                    </div>
+                            </div>
+    )
+}
 export function BookView({bookData,types}){
     const dispatch = useDispatch();
+    const isOnShelf = useSelector((state) => state.shelf.shelf.findIndex((val)=> val.id === bookData.id) === -1)
     return (
         <div  className="search-result_book border-sky-00 border-2 bg-sky-50 pr-6 py-6
         grid grid-cols-10 rounded-md shadow-sm">  
@@ -81,7 +118,7 @@ export function BookView({bookData,types}){
                }
             </div>
             <div className="data col-span-8">
-                <p className="opacity-50"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[0].identifier) || bookData.id}</p>
+                <p className="opacity-50 animate"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[0].identifier) || bookData.id}</p>
                 <h2 className="text-2xl font-semibold">{bookData.title}</h2>
                 <p>Published on {bookData.publishedDate}</p>
                 {!types && <p>{bookData.pageCount} Pages </p>}
@@ -95,7 +132,11 @@ export function BookView({bookData,types}){
                 )}
               
               {!types && <div className="action flex gap-3">
-                    <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,category:'planned',pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><PlusCircleIcon size={27}/> Add To Read</button>
+                    {
+                        isOnShelf && (
+                            <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,category:'planned',pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><PlusCircleIcon size={27}/> Add To Read</button>
+                        )
+                    }
                     {bookData.actionLink.buy && <a href={bookData.actionLink.buy || ''} target="_blank">
                         <button className="btn my-2 bg-sky-500 shadow-md" ><ShoppingCartIcon size={27}/> Buy</button>
                     </a>}
@@ -109,7 +150,7 @@ export function BookView({bookData,types}){
 
                 {types === 'shelf' &&  <div className="action flex gap-3">
                     <button className="btn my-2 shadow-md" onClick={()=>{}}><Edit size={27}/> Edit</button>
-                    <button className="btn my-2 shadow-md bg-orange-500" onClick={()=>{}}><X size={29}/> Remove</button>
+                    <button className="btn my-2 shadow-md bg-orange-500" onClick={()=>{dispatch(shelfActions.remove(bookData.id))}}><X size={29}/> Remove</button>
                     {/* {bookData.actionLink.info && <a href={bookData.actionLink.info || ''} target="_blank">
                         <button className="btn my-2 bg-sky-500 shadow-md" ><ArrowBigRightDash size={30}/>More Info</button>
                     </a>} */}
