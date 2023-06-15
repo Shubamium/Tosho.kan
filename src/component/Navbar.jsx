@@ -18,11 +18,11 @@ function Navbar() {
             <h1 className="text-4xl text-white"><span className="font-bold">Tosho</span>.kan</h1>
             <Form className="w-full input-field flex gap-2 justify-end pr-10" onClick={handleSearch} method="get" action="/search">
                     <input type="search" name="q" id="" className=" w-9/12 border-2 rounded-full border-blue-300 h-full p-2 px-5"  placeholder="Search books by name or author or ISBN Number. . ."  required/>
-                    <button type='submit' className="btn"><Search size={27}/></button>
+                    <button type='submit' className="btn bg-sky-800"><Search size={27}/></button>
             </Form>
             <nav className="flex gap-2">
-                <Link to={'/'}><button className="btn"> <Home  size={27}/> Home</button></Link>
-                <Link to={'/shelf'}><button className="btn"> <Book size={27}/> My Bookshelf</button></Link>
+                <Link to={'/'}><button className="btn bg-sky-600"> <Home  size={27}/> Home</button></Link>
+                <Link to={'/shelf'}><button className="btn bg-sky-600"> <Book size={27}/> My Bookshelf</button></Link>
             </nav>
       </div>
     </header>

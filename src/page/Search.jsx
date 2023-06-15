@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useFormAction, useLocation, useSearchParams } from "react-router-dom"
 import { shelfActions } from "../toolkit/slice/shelfSlice";
-import { PlusCircleIcon, ShoppingCartIcon, View } from "lucide-react";
+import { ArrowBigDown, ArrowBigRightDash, BookMarked, Cross, CrossIcon, CrosshairIcon, Edit, LucideCross, PlusCircleIcon, ShoppingCartIcon, View, X } from "lucide-react";
 
 
 async function book_search(query,callback){
@@ -21,7 +21,7 @@ function Search() {
    const dispatch = useDispatch();
    const [searchRes,setSearchRes] = useState();
     useEffect(()=>{
-         const q = query.get('q');
+        const q = query.get('q');
         book_search(q,(res)=>{
             setSearchRes(parseResult(res));
         })
@@ -35,7 +35,7 @@ function Search() {
                 id:book.id,
                 title:book.volumeInfo.title,
                 publishedDate:book.volumeInfo.publishedDate,
-                pageCount:book.volumeInfo.pageCount,
+                pageCount:book.volumeInfo.pageCount || 0,
                 authors:book.volumeInfo.authors,
                 thumbnail:book.volumeInfo?.imageLinks?.thumbnail,
                 description:book.volumeInfo?.description,
@@ -52,8 +52,10 @@ function Search() {
     return (
         <main>
             <div className="confine">
-                    <p className="text-xl p-2 mb-5">Showing search results for <span className="font-bold">'{query.get('q')}'</span>. . . </p>
-                    <p className="text-xl p-2">{searchRes && `${searchRes.length} Results found `}</p>
+                    <div className="flex justify-between my-2">
+                        <p className="text-xl p-2 mb-5">Showing search results for <span className="font-bold">'{query.get('q')}'</span>. . . </p>
+                        <p className="text-xl p-2 opacity-50 text-right">{searchRes && `${searchRes.length} Results found `}</p>
+                    </div>
                     <div className="search-res flex flex-col gap-4">
                         {searchRes && searchRes.map((res)=>{
                             return (
@@ -66,7 +68,7 @@ function Search() {
   )
 }
 
-export function BookView({bookData}){
+export function BookView({bookData,types}){
     const dispatch = useDispatch();
     return (
         <div  className="search-result_book border-sky-00 border-2 bg-sky-50 pr-6 py-6
@@ -83,20 +85,30 @@ export function BookView({bookData}){
                 <h2 className="text-2xl font-semibold">{bookData.title}</h2>
                 <p>Published on {bookData.publishedDate}</p>
                 <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{bookData.description || 'No description is available for this book.'}</p>
-                <p>{bookData.pageCount} Pages </p>
+                {!types && <p>{bookData.pageCount} Pages </p>}
+                {types === 'shelf' &&  <p className="text-2xl text-blue-500"> 0 / {bookData.pageCount} Pages </p>}
                 <p>by {bookData.authors && bookData.authors.map((author,index)=> <span className="font-bold text-slate-500"> {index > 0 && ','}  {author} </span>)}</p>
-                <div className="action flex gap-3">
+              
+              {!types && <div className="action flex gap-3">
                     <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><PlusCircleIcon size={27}/> Add To Read</button>
                     {bookData.actionLink.buy && <a href={bookData.actionLink.buy || ''} target="_blank">
                         <button className="btn my-2 bg-sky-500 shadow-md" ><ShoppingCartIcon size={27}/> Buy</button>
                     </a>}
-                    {bookData.actionLink.info && <a href={bookData.actionLink.info || ''} target="_blank">
-                        <button className="btn my-2 bg-teal-500 shadow-md" ><View size={27}/> More Info</button>
-                    </a>}
                     {bookData.actionLink.preview && <a href={bookData.actionLink.preview || ''} target="_blank">
                         <button className="btn my-2 bg-slate-500 shadow-md" ><View size={27}/> Preview</button>
                     </a>}
-                </div>
+                    {bookData.actionLink.info && <a href={bookData.actionLink.info || ''} target="_blank">
+                        <button className="btn my-2 bg-sky-500 shadow-md" ><ArrowBigRightDash size={30}/>More Info</button>
+                    </a>}
+                </div>}
+
+                {types === 'shelf' &&  <div className="action flex gap-3">
+                    <button className="btn my-2 shadow-md" onClick={()=>{}}><Edit size={27}/> Edit</button>
+                    <button className="btn my-2 shadow-md bg-orange-500" onClick={()=>{}}><X size={29}/> Remove</button>
+                    {/* {bookData.actionLink.info && <a href={bookData.actionLink.info || ''} target="_blank">
+                        <button className="btn my-2 bg-sky-500 shadow-md" ><ArrowBigRightDash size={30}/>More Info</button>
+                    </a>} */}
+                </div>}
             </div>
         </div>
     )
