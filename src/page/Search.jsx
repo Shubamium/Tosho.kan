@@ -33,6 +33,7 @@ function Search() {
 
     function parseResult(apiRes){
         let toReturn = [];
+        if(!apiRes.items) return [];
         toReturn = apiRes.items.map((book)=>{
             return {
                 id:book.id,
@@ -101,10 +102,10 @@ export function BookviewSkeleton(){
                                            </div>
                                         </div>
                                     </div>
-                            </div>
+        </div>
     )
 }
-export function BookView({bookData,types}){
+export function BookView({bookData,readCount,types,onEdit}){
     const dispatch = useDispatch();
     const isOnShelf = useSelector((state) => state.shelf.shelf.findIndex((val)=> val.id === bookData.id) === -1)
     return (
@@ -127,7 +128,7 @@ export function BookView({bookData,types}){
                 {types === 'shelf' &&  (
                     <div className="progress p-2 bg-sky-100">
                         <h2 >Progress:</h2>
-                        <p className="text-2xl text-blue-500"> 0 / {bookData.pageCount} Pages Read </p>
+                        <p className="text-2xl text-blue-500"> {readCount || 0} / {bookData.pageCount} Pages Read </p>
                     </div>
                 )}
               
@@ -149,7 +150,7 @@ export function BookView({bookData,types}){
                 </div>}
 
                 {types === 'shelf' &&  <div className="action flex gap-3">
-                    <button className="btn my-2 shadow-md" onClick={()=>{}}><Edit size={27}/> Edit</button>
+                    <button className="btn my-2 shadow-md" onClick={()=>{onEdit && onEdit(bookData.id)}}><Edit size={27}/> Edit</button>
                     <button className="btn my-2 shadow-md bg-orange-500" onClick={()=>{dispatch(shelfActions.remove(bookData.id))}}><X size={29}/> Remove</button>
                     {/* {bookData.actionLink.info && <a href={bookData.actionLink.info || ''} target="_blank">
                         <button className="btn my-2 bg-sky-500 shadow-md" ><ArrowBigRightDash size={30}/>More Info</button>

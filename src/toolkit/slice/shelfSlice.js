@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current } from "@reduxjs/toolkit";
 
 const shelfSlice = createSlice({
     name:'shelf',
@@ -12,6 +12,14 @@ const shelfSlice = createSlice({
             const selectedIndex = state.shelf.findIndex((shelf)=> shelf.id === action.payload);
             state.shelf.splice(selectedIndex,1);
             localStorage.setItem('shelf',JSON.stringify(state));
+        },
+        update:(state,action)=>{
+            const selectedIndex = state.shelf.findIndex((shelf)=> shelf.id === action.payload.id);
+            const shelf = [...state.shelf];
+            shelf[selectedIndex] = {...shelf[selectedIndex],...action.payload.data};
+            console.log(selectedIndex);
+            // console.log(state.shelf[selectedIndex]);
+          state.shelf = shelf;
         },
         load:(state,action)=>{
             state.shelf = action.payload;

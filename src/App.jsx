@@ -9,7 +9,9 @@ function App() {
       console.log('Initializingss stores');
       const data = JSON.parse(localStorage.getItem('shelf'));
       // console.log(data.shelf);
-      dispatch(shelfActions.load(data.shelf));
+      if(data){
+        dispatch(shelfActions.load(data.shelf));
+      }
     },[]);
     return (
         <div>
