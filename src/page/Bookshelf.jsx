@@ -27,7 +27,7 @@ function Bookshelf() {
                       
             </div>
               <div className="flex flex-col gap-5">
-                  {bookShelf && bookShelf.map((bookData)=>{
+                  {bookShelf && [...bookShelf].reverse().map((bookData)=>{
                       if(bookData.category !== showingCategory) return <></>;
                       return (
                           <BookView key={bookData.id} types={'shelf'} bookData={bookData.bookData}/>

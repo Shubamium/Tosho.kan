@@ -84,13 +84,18 @@ export function BookView({bookData,types}){
                 <p className="opacity-50"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[0].identifier) || bookData.id}</p>
                 <h2 className="text-2xl font-semibold">{bookData.title}</h2>
                 <p>Published on {bookData.publishedDate}</p>
-                <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{bookData.description || 'No description is available for this book.'}</p>
                 {!types && <p>{bookData.pageCount} Pages </p>}
-                {types === 'shelf' &&  <p className="text-2xl text-blue-500"> 0 / {bookData.pageCount} Pages </p>}
                 <p>by {bookData.authors && bookData.authors.map((author,index)=> <span className="font-bold text-slate-500"> {index > 0 && ','}  {author} </span>)}</p>
+                <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{bookData.description || 'No description is available for this book.'}</p>
+                {types === 'shelf' &&  (
+                    <div className="progress p-2 bg-sky-100">
+                        <h2 >Progress:</h2>
+                        <p className="text-2xl text-blue-500"> 0 / {bookData.pageCount} Pages Read </p>
+                    </div>
+                )}
               
               {!types && <div className="action flex gap-3">
-                    <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><PlusCircleIcon size={27}/> Add To Read</button>
+                    <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,category:'planned',pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><PlusCircleIcon size={27}/> Add To Read</button>
                     {bookData.actionLink.buy && <a href={bookData.actionLink.buy || ''} target="_blank">
                         <button className="btn my-2 bg-sky-500 shadow-md" ><ShoppingCartIcon size={27}/> Buy</button>
                     </a>}
