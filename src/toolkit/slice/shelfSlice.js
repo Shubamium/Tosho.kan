@@ -19,7 +19,9 @@ const shelfSlice = createSlice({
             shelf[selectedIndex] = {...shelf[selectedIndex],...action.payload.data};
             console.log(selectedIndex);
             // console.log(state.shelf[selectedIndex]);
-          state.shelf = shelf;
+           state.shelf = shelf;
+           localStorage.setItem('shelf',JSON.stringify(state));
+
         },
         load:(state,action)=>{
             state.shelf = action.payload;

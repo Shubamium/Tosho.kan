@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux"
 import { BookView } from "./Search";
-import React, { useState } from "react";
-import { X } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Minus, MinusCircleIcon, Plus, PlusCircleIcon, X } from "lucide-react";
 import useDrawer from "../hooks/useDrawer";
 import { useForm } from "react-hook-form";
 import { stringify } from "postcss";
@@ -59,24 +59,41 @@ function EditDrawer({visibile,page,close,toEdit, onSubmit}){
   if(!visibile){
     return <></>
   }
-  const {register,handleSubmit} = useForm();
+  const {register,handleSubmit,formState:{errors},setValue,getValues} = useForm();
   const dispatch = useDispatch();
   const bookData = useSelector((state) => state.shelf.shelf[state.shelf.shelf.findIndex((val)=> val.id === toEdit)] || null)
 
   function submit (e){
-    console.log(JSON.stringify(e));
+    console.log(errors);
     onSubmit && onSubmit(e);
-    const data = {
+    let progress = parseInt(e.progress);
+    if(isNaN(progress)){
+      progress = 0;
+    }
+    const data = {  
         id:toEdit,
         data:{
-          pageRead:parseInt(e.progress)
+          pageRead:progress
         }
     };
-
-    dispatch(shelfActions.update(data));
+    if(!isNaN(progress)){
+      dispatch(shelfActions.update(data));
+    }
   }
-  console.log(bookData);
 
+  const handleFineControl = (val)=>{
+      try{
+        const num = parseInt(getValues('progress'))
+        let res = num + val;
+        if(res < 0) res = 0;
+        if(bookData.pageCount !== 0 && res > bookData.pageCount) res = bookData.pageCount; 
+        if(!isNaN(res)){
+          setValue('progress',res,{shouldValidate:true});
+        }
+      }catch(err){
+        console.log(err);
+      }
+  }
   return (
     <div className="backdrop bg-slate-900 bg-opacity-30 backdrop-blur-[2px] w-screen h-screen fixed top-0 right-0">
         <div className="content h-screen w-1/5 bg-white absolute right-0 p-4">
@@ -90,8 +107,15 @@ function EditDrawer({visibile,page,close,toEdit, onSubmit}){
                   <fieldset className="flex flex-col">
                       <label htmlFor="progress">Progress:</label>
                       <div className="w-full flex p-2 items-center gap-2" >
-                        <input className=" bg-sky-100 w-28 p-2 text-2xl text-slate-600"  {...register('progress')} required placeholder="0" type="0" /> <p className="text-blue-400 block  text-2xl "> / {bookData.pageCount}</p>
+                        <input className=" bg-sky-100 w-28 p-2 text-2xl text-slate-600" {...register('progress',{min:0,max:bookData.pageCount === 0 ? Infinity : bookData.pageCount,required:true})} defaultValue={bookData.pageRead}  max={bookData.pageCount !== 0 ? bookData.pageCount : ''} placeholder="0"  min={0}/> <p className="text-blue-400 block  text-2xl "> / {bookData.pageCount}</p>
                       </div>
+                      <div className="fast-control flex gap-2">
+                        <button className="btn"  type="button"  onClick={()=>{handleFineControl(-10)}} >  <MinusCircleIcon/> </button>
+                        <button className="btn"  type="button"  onClick={()=>{handleFineControl(-1)}} > <Minus/> </button>
+                        <button className="btn"  type="button" onClick={()=>{handleFineControl(1)}} > <Plus></Plus> </button>
+                        <button className="btn"  type="button" onClick={()=>{handleFineControl(10)}} > <PlusCircleIcon/> </button>
+                      </div>
+                      {errors.progress?.type === 'max' && <p>Cannot exceed the amount of pages in the book.</p>}
                   </fieldset>
               </div>
               <div className="drawer-footer bg-sky-100 bg-opacity-5 p-2 w-full">
@@ -109,3 +133,4 @@ function TabButton({category,toSet,setShowingCategory,children}){
   )
 }
 export default Bookshelf
+
