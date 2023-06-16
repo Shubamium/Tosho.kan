@@ -9,9 +9,10 @@ import { shelfActions } from "../toolkit/slice/shelfSlice";
 
 function Bookshelf() {
     const bookShelf = useSelector((state)=>state.shelf.shelf);
-    const [showingCategory,setShowingCategory] = useState('favorite');
+    const [showingCategory,setShowingCategory] = useState('planned');
     const editDrawerState = useDrawer();
     const [toEdit,setToEdit] = useState();
+    
     const toRender = [...bookShelf].reverse().map((bookData,index) => {
       if (bookData.category !== showingCategory) return <React.Fragment key={index}></React.Fragment>;
       return (
@@ -73,7 +74,8 @@ function EditDrawer({visibile,page,close,toEdit, onSubmit}){
     const data = {  
         id:toEdit,
         data:{
-          pageRead:progress
+          pageRead:progress,
+          category:e.status
         }
     };
     if(!isNaN(progress)){
@@ -103,9 +105,8 @@ function EditDrawer({visibile,page,close,toEdit, onSubmit}){
                 <button className="btn bg-transparent hover:bg-red-600 hover:text-white text-black" onClick={()=>{close && close()}}><X/></button>
               </div>
               <div className="drawer-body p-2 h-full">
-              {/* <p>{toEdit}</p> */}
-                  <fieldset className="flex flex-col">
-                      <label htmlFor="progress">Progress:</label>
+                  <fieldset className="flex flex-col text-lg">
+                      <label htmlFor="progress" className="text-lg font-semibold">Progress:</label>
                       <div className="w-full flex p-2 items-center gap-2" >
                         <input className=" bg-sky-100 w-28 p-2 text-2xl text-slate-600" {...register('progress',{min:0,max:bookData.pageCount === 0 ? Infinity : bookData.pageCount,required:true})} defaultValue={bookData.pageRead}  max={bookData.pageCount !== 0 ? bookData.pageCount : ''} placeholder="0"  min={0}/> <p className="text-blue-400 block  text-2xl "> / {bookData.pageCount}</p>
                       </div>
@@ -116,6 +117,16 @@ function EditDrawer({visibile,page,close,toEdit, onSubmit}){
                         <button className="btn"  type="button" onClick={()=>{handleFineControl(10)}} > <PlusCircleIcon/> </button>
                       </div>
                       {errors.progress?.type === 'max' && <p>Cannot exceed the amount of pages in the book.</p>}
+                  </fieldset>
+                  <fieldset className="my-2">
+                    <label className="text-lg font-semibold">Status</label>
+                    <select {...register('status')} defaultValue={bookData.category}  className="p-2 rounded-sm bg-sky-100 w-full px-4 focus:outline-4 outline-black ">
+                      <option value="favorite">Favorite</option>
+                      <option value="reading">Reading</option>
+                      <option value="completed">Completed</option>
+                      <option value="planned">Plan to Read</option>
+                      <option value="onhold">On-hold</option>
+                    </select>
                   </fieldset>
               </div>
               <div className="drawer-footer bg-sky-100 bg-opacity-5 p-2 w-full">
