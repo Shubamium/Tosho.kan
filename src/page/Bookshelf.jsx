@@ -12,20 +12,31 @@ function Bookshelf() {
     const [showingCategory,setShowingCategory] = useState('planned');
     const editDrawerState = useDrawer();
     const [toEdit,setToEdit] = useState();
-    
+    const [simple,setSimple] = useState(false);
     const toRender = [...bookShelf].reverse().map((bookData,index) => {
       if (bookData.category !== showingCategory) return <React.Fragment key={index}></React.Fragment>;
       return (
-        <BookView key={bookData.id || index} readCount={bookData.pageRead} types={'shelf'} onEdit={(id)=>{editDrawerState.open(); setToEdit(id);}} bookData={bookData.bookData} />
+        <BookView key={bookData.id || index} simplified={simple} readCount={bookData.pageRead} types={'shelf'} onEdit={(id)=>{editDrawerState.open(); setToEdit(id);}} bookData={bookData.bookData} />
       );
     });
 
+    function switchView(to){
+      setSimple(to);
+    }
 
     return (
       <div>
           <div className="confine max-w-screen-lg">
-            <h2 className="text-5xl font-bold mt-8 text-sky-800">My Bookshelf</h2>
-            <p className="p-1 mb-5">All of your books in one place.</p>
+            <div className="header flex justify-between items-end">
+             <div className="left ">
+              <h2 className="text-5xl font-bold mt-8 text-sky-800">My Bookshelf</h2>
+              <p className="p-1 mb-5">All of your books in one place.</p>
+             </div>
+             <div className="right flex h-fit  rounded-xl bg-slate-300">
+                <button className={`rounded-xl hover:bg-slate-900 simple btn h-fit bg-transparent ${simple && 'bg-slate-600'}`}  onClick={()=>{switchView(true)}}>Simple</button>
+                <button className={`rounded-xl hover:bg-slate-900 simple btn h-fit bg-transparent ${!simple && 'bg-slate-600'}`}    onClick={()=>{switchView(false)}}>Detailed</button>
+             </div>
+            </div>
             <div className="tabs flex gap-2 border-b-2 border-sky-200">
                       <TabButton toSet={'favorite'}  category={showingCategory}  setShowingCategory={setShowingCategory}>
                         Favorite

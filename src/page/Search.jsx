@@ -105,7 +105,7 @@ export function BookviewSkeleton(){
         </div>
     )
 }
-export function BookView({bookData,readCount,types,onEdit}){
+export function BookView({bookData,readCount,types,onEdit,simplified}){
     const dispatch = useDispatch();
     const isOnShelf = useSelector((state) => state.shelf.shelf.findIndex((val)=> val.id === bookData.id) === -1)
     return (
@@ -119,15 +119,19 @@ export function BookView({bookData,readCount,types,onEdit}){
                }
             </div>
             <div className="data col-span-8">
-                <p className="opacity-50 animate"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[0].identifier) || bookData.id}</p>
-                <h2 className="text-2xl font-semibold">{bookData.title}</h2>
-                <p>Published on {bookData.publishedDate}</p>
+                {!simplified &&   <p className="opacity-50 animate"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[0].identifier) || bookData.id}</p>}
+                <h2 className="text-2xl font-semibold my-2 text-sky-700">{bookData.title}</h2>
+                {!simplified && <p>Published on {bookData.publishedDate}</p>}
                 {!types && <p>{bookData.pageCount} Pages </p>}
-                <p>by {bookData.authors && bookData.authors.map((author,index)=> <span className="font-bold text-slate-500"> {index > 0 && ','}  {author} </span>)}</p>
-                <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{bookData.description || 'No description is available for this book.'}</p>
+                {!simplified && (
+                    <>
+                        <p>by {bookData.authors && bookData.authors.map((author,index)=> <span className="font-bold text-slate-500"> {index > 0 && ','}  {author} </span>)}</p>
+                        <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{bookData.description || 'No description is available for this book.'}</p>
+                    </>
+                )}
                 {types === 'shelf' &&  (
                     <div className="progress p-2 bg-sky-100">
-                        <h2 >Progress:</h2>
+                        <h2  className="font-semibold text-sky-800">Progress:</h2>
                         <p className="text-2xl text-blue-500"> {readCount || 0} / {bookData.pageCount} Pages Read </p>
                     </div>
                 )}
@@ -150,8 +154,8 @@ export function BookView({bookData,readCount,types,onEdit}){
                 </div>}
 
                 {types === 'shelf' &&  <div className="action flex gap-3">
-                    <button className="btn my-2 shadow-md" onClick={()=>{onEdit && onEdit(bookData.id)}}><Edit size={27}/> Edit</button>
-                    <button className="btn my-2 shadow-md bg-orange-500" onClick={()=>{dispatch(shelfActions.remove(bookData.id))}}><X size={29}/> Remove</button>
+                    <button className="btn my-2 shadow-md" onClick={()=>{onEdit && onEdit(bookData.id)}}><Edit size={27}/> {!simplified && 'Edit'}</button>
+                    <button className="btn my-2 shadow-md bg-orange-500" onClick={()=>{dispatch(shelfActions.remove(bookData.id))}}><X size={29}/> {!simplified && 'Remove'}</button>
                     {/* {bookData.actionLink.info && <a href={bookData.actionLink.info || ''} target="_blank">
                         <button className="btn my-2 bg-sky-500 shadow-md" ><ArrowBigRightDash size={30}/>More Info</button>
                     </a>} */}
