@@ -14,7 +14,7 @@ export function useAIRecommendation(booksList,shouldRefresh){
         Recommend me 5 books based on the book I've read!
         I've read: 
         ${booksList || "I haven't read any book so recommend me some of the best selling"}.
-        Write a javascript array inside it is an object with the book name as 'title'  and its ISBN number as 'ISBN', and don't say anything before it.
+        Write a javascript array inside it is an object with the book name as a string named 'title'  and its ISBN number as a string named 'ISBN', and don't say anything before it.
         `;
         const req = await axios.post('https://api.openai.com/v1/completions',
             {
