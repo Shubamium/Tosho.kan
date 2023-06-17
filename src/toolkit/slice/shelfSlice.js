@@ -7,6 +7,7 @@ const shelfSlice = createSlice({
         add:(state,action)=>{
             state.shelf.push(action.payload);
             localStorage.setItem('shelf',JSON.stringify(state));
+            localStorage.setItem('recc_refreshed',false);
         },
         remove:(state,action)=>{
             const selectedIndex = state.shelf.findIndex((shelf)=> shelf.id === action.payload);

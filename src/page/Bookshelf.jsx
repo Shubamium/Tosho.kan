@@ -16,7 +16,7 @@ function Bookshelf() {
     const toRender = [...bookShelf].reverse().map((bookData,index) => {
       if (bookData.category !== showingCategory) return <React.Fragment key={index}></React.Fragment>;
       return (
-        <BookView key={bookData.id || index} simplified={simple} readCount={bookData.pageRead} types={'shelf'} onEdit={(id)=>{editDrawerState.open(); setToEdit(id);}} bookData={bookData.bookData} />
+        <BookView key={bookData.id || index} simplified={simple} readCount={bookData.pageRead} types={'shelf'}  onEdit={(id)=>{editDrawerState.open(); setToEdit(id);}} bookData={bookData.bookData} />
       );
     });
 
@@ -33,8 +33,8 @@ function Bookshelf() {
               <p className="p-1 mb-5">All of your books in one place.</p>
              </div>
              <div className="right flex h-fit  rounded-xl bg-slate-300">
-                <button className={`rounded-xl hover:bg-slate-900 simple btn h-fit bg-transparent ${simple && 'bg-slate-600'}`}  onClick={()=>{switchView(true)}}>Simple</button>
-                <button className={`rounded-xl hover:bg-slate-900 simple btn h-fit bg-transparent ${!simple && 'bg-slate-600'}`}    onClick={()=>{switchView(false)}}>Detailed</button>
+                <button className={`rounded-xl hover:bg-slate-900 simple btn h-fit ${simple ? 'bg-slate-600' : 'bg-transparent'}`}  onClick={()=>{switchView(true)}}>Simple</button>
+                <button className={`rounded-xl hover:bg-slate-900 simple btn h-fit ${!simple ? 'bg-slate-600' : 'bg-transparent'}`}    onClick={()=>{switchView(false)}}>Detailed</button>
              </div>
             </div>
             <div className="tabs flex gap-2 border-b-2 border-sky-200">

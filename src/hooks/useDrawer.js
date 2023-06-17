@@ -8,7 +8,6 @@ export default function useDrawer(){
     }
     function close(){
         setVisible(false);
-        
     }
 
     return {visible,open,close}

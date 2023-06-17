@@ -6,15 +6,39 @@ import { shelfActions } from "../toolkit/slice/shelfSlice";
 import { ArrowBigDown, ArrowBigRightDash, BookMarked, Cross, CrossIcon, CrosshairIcon, Edit, LucideCross, PlusCircleIcon, ShoppingCartIcon, View, X } from "lucide-react";
 
 
-async function book_search(query,callback){
+export async function book_search(query,callback){
     const searchUrl = new URL('https://www.googleapis.com/books/v1/volumes');
     searchUrl.searchParams.append('q',query);
     searchUrl.searchParams.append('key',import.meta.env.VITE_GOOGLE_API);
     console.log(searchUrl);
     const req = await axios.get(searchUrl);
-    callback(req.data);
-    
+    callback && callback(req.data);
+    return req.data;
 }
+
+export function parseResult(apiRes){
+    let toReturn = [];
+    if(!apiRes.items) return [];
+    toReturn = apiRes.items.map((book)=>{
+        return {
+            id:book.id,
+            title:book.volumeInfo.title,
+            publishedDate:book.volumeInfo.publishedDate,
+            pageCount:book.volumeInfo.pageCount || 0,
+            authors:book.volumeInfo.authors,
+            thumbnail:book.volumeInfo?.imageLinks?.thumbnail,
+            description:book.volumeInfo?.description,
+            identifier:book.volumeInfo.industryIdentifiers,
+            actionLink:{
+                buy:book.saleInfo.buyLink,
+                preview:book.volumeInfo.previewLink,
+                info:book.volumeInfo.infoLink
+            }
+        }
+    })
+    return toReturn;
+}
+
 function Search() {
    const [query,_] = useSearchParams();
 
@@ -30,29 +54,6 @@ function Search() {
         })
     },[query]);
 
-
-    function parseResult(apiRes){
-        let toReturn = [];
-        if(!apiRes.items) return [];
-        toReturn = apiRes.items.map((book)=>{
-            return {
-                id:book.id,
-                title:book.volumeInfo.title,
-                publishedDate:book.volumeInfo.publishedDate,
-                pageCount:book.volumeInfo.pageCount || 0,
-                authors:book.volumeInfo.authors,
-                thumbnail:book.volumeInfo?.imageLinks?.thumbnail,
-                description:book.volumeInfo?.description,
-                identifier:book.volumeInfo.industryIdentifiers,
-                actionLink:{
-                    buy:book.saleInfo.buyLink,
-                    preview:book.volumeInfo.previewLink,
-                    info:book.volumeInfo.infoLink
-                }
-            }
-        })
-        return toReturn;
-    }
     return (
         <main>
             <div className="confine">
@@ -105,38 +106,38 @@ export function BookviewSkeleton(){
         </div>
     )
 }
-export function BookView({bookData,readCount,types,onEdit,simplified}){
+export function BookView({bookData,readCount,types,onEdit,simplified,isPotrait}){
     const dispatch = useDispatch();
     const isOnShelf = useSelector((state) => state.shelf.shelf.findIndex((val)=> val.id === bookData.id) === -1)
     return (
-        <div  className="search-result_book border-sky-00 border-2 bg-sky-50 pr-6 py-6
-        grid grid-cols-10 rounded-md shadow-sm">  
-            <div className="img-part col-span-2 px-10 ">
-               { bookData.thumbnail ? <img src={bookData.thumbnail} alt="" className="w-full p-2 max-h-1/2 drop-shadow-md"  />:
-                 <div className="w-full h-full bg-sky-200 flex flex-col justify-center content-center potrait">
+        <div  className={`search-result_book border-sky-00 border-2 bg-sky-50  py-6
+          ${isPotrait ? 'flex flex-col items-center text-center gap-2 p-5 min-w-[20%] justify-between' : 'grid grid-cols-10 pr-6'} rounded-md shadow-sm`}>  
+            <div className="img-part col-span-2 px-10 h-full ">
+                { bookData.thumbnail ? <img src={bookData.thumbnail} alt="" className={`w-full p-2 max-h-1/2 drop-shadow-md ${isPotrait && 'min-h-[50%]'}`}  />:
+                 <div className={`bg-sky-200 flex flex-col justify-center content-center  ${isPotrait ? 'min-h-[250px] w-full p-5 ' : 'potrait w-full'}`}>
                      <p className="text-sky-800 text-center">No Preview Available</p>
                  </div>
                }
             </div>
-            <div className="data col-span-8">
+            <div className={`data col-span-8 ${isPotrait && 'justify-self-end'}`}>
                 {!simplified &&   <p className="opacity-50 animate"> {(bookData.identifier && 'ISBN - ' + bookData.identifier[0].identifier) || bookData.id}</p>}
-                <h2 className="text-2xl font-semibold my-2 text-sky-700">{bookData.title}</h2>
+                <h2 className={`font-semibold my-2 text-sky-700 whitespace-normal ${isPotrait ? 'text-xl' : 'text-2xl' }`}>{bookData.title}</h2>
                 {!simplified && <p>Published on {bookData.publishedDate}</p>}
                 {!types && <p>{bookData.pageCount} Pages </p>}
                 {!simplified && (
                     <>
-                        <p>by {bookData.authors && bookData.authors.map((author,index)=> <span className="font-bold text-slate-500"> {index > 0 && ','}  {author} </span>)}</p>
+                        <p>by {bookData.authors && bookData.authors.map((author,index)=> <span className="font-bold text-slate-500" key={index}> {index > 0 && ','}  {author} </span>)}</p>
                         <p className="text-slate-500 text-sm mb-5 p-2 bg-slate-200">{bookData.description || 'No description is available for this book.'}</p>
                     </>
                 )}
                 {types === 'shelf' &&  (
-                    <div className="progress p-2 bg-sky-100">
+                    <div className={`progress p-2 bg-sky-100 ${ isPotrait && 'self-end'}`}>
                         <h2  className="font-semibold text-sky-800">Progress:</h2>
                         <p className="text-2xl text-blue-500"> {readCount || 0} / {bookData.pageCount} Pages Read </p>
                     </div>
                 )}
               
-              {!types && <div className="action flex gap-3">
+              {!isPotrait && !types && <div className="action flex gap-3">
                     {
                         isOnShelf && (
                             <button className="btn my-2 shadow-md" onClick={()=>{dispatch(shelfActions.add({id:bookData.id,category:'planned',pageRead:0,pageCount:bookData.pageCount,bookData:bookData}))}}><PlusCircleIcon size={27}/> Add To Read</button>
@@ -153,8 +154,8 @@ export function BookView({bookData,readCount,types,onEdit,simplified}){
                     </a>}
                 </div>}
 
-                {types === 'shelf' &&  <div className="action flex gap-3">
-                    <button className="btn my-2 shadow-md" onClick={()=>{onEdit && onEdit(bookData.id)}}><Edit size={27}/> {!simplified && 'Edit'}</button>
+                {!isPotrait && types === 'shelf' &&  <div className="action flex gap-3">
+                    {onEdit && <button className="btn my-2 shadow-md" onClick={()=>{onEdit && onEdit(bookData.id)}}><Edit size={27}/> {!simplified && 'Edit'}</button>}
                     <button className="btn my-2 shadow-md bg-orange-500" onClick={()=>{dispatch(shelfActions.remove(bookData.id))}}><X size={29}/> {!simplified && 'Remove'}</button>
                     {/* {bookData.actionLink.info && <a href={bookData.actionLink.info || ''} target="_blank">
                         <button className="btn my-2 bg-sky-500 shadow-md" ><ArrowBigRightDash size={30}/>More Info</button>
